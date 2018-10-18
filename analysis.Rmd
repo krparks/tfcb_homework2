@@ -1,0 +1,77 @@
+---
+title: "Lecture 4 analysis"
+output: html_document
+---
+
+```{r}
+#load tidyverse
+library(tidyverse)
+
+#read in data
+data <- read_tsv("../data/example_dataset_2.tsv")
+
+#make colum to calculate mean ratio
+data<-data %>% mutate(mean_ratio = mean_yfp/mean_rfp) %>%
+  print()
+
+```
+
+```{r}
+data %>% mutate(mean_ratio = round(mean_ratio, 2)) %>%
+print()
+```
+```{r}
+annotations<-read_tsv("../data/example_dataset_3.tsv") %>%
+  print()
+```
+
+```{r}
+data %>% inner_join(annotations, by = "strain")
+```
+```{r}
+data %>% left_join(annotations, by = "strain")
+```
+```{r}
+data %>% right_join(annotations, by = "strain")
+```
+```{r}
+data %>% summarize(max_yfp = max(mean_yfp),
+                   max_rfp=max(mean_rfp))
+```
+
+```{r}
+data<-read_tsv("../data/example_dataset_4.tsv") %>% print(n=10)
+```
+```{r}
+data %>% group_by(strain) %>%
+  print(n=10)
+```
+
+
+```{r}
+data %>% group_by(strain) %>%
+  summarize(mean_yfp=mean(yfp), mean_rfp = mean(rfp),
+            se_yfp = sd(yfp)/sqrt(n()),
+            se_rfp=sd(rfp)/sqrt(n())) %>%
+  print()
+```
+
+```{r}
+data %>% group_by(strain) %>%
+  summarize(mean_yfp=mean(yfp), mean_rfp = mean(rfp))%>% 
+              mutate(mean_ration = mean_yfp/mean_rfp) %>%
+              left_join(annotations, by = "strain") %>%
+  print()
+```
+
+```{r}
+data %>% group_by(strain) %>%
+  summarize(mean_yfp=mean(yfp), mean_rfp = mean(rfp))%>% 
+              mutate(mean_ration = mean_yfp/mean_rfp) %>%
+              left_join(annotations, by = "strain") %>%
+  ggplot(aes(x=kozak_region, y=mean_ration,
+             color=insert_sequence, group = insert_sequence)) +
+  geom_line() + 
+  geom_point()
+```
+
